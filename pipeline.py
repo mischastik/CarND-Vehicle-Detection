@@ -176,7 +176,7 @@ def find_cars(img, ystart, ystop, scale, svc, X_scaler, orient, pix_per_cell, ce
 
 class VehicleDetector:
     def __init__(self):
-        ### TODO: Tweak these parameters and see how the results change.
+
         self.color_space = 'YUV'  # Can be RGB, HSV, LUV, HLS, YUV, YCrCb
         self.orient = 13  # HOG orientations
         self.pix_per_cell = 8  # HOG pixels per cell
@@ -260,8 +260,25 @@ class VehicleDetector:
         hot_windows = []
         if self.heat is None:
             self.heat = np.zeros_like(image[:, :, 0]).astype(np.float)
-        ystart = 300
-        ystop = 600
+
+        ystart = 360
+        ystop = 480
+        scale = 1.0
+        scale_windows, out_img = find_cars(image, ystart, ystop, scale, self.svc, self.X_scaler, self.orient, self.pix_per_cell, self.cell_per_block, self.spatial_size, self.hist_bins, self.color_space)
+        hot_windows += scale_windows
+        #plt.imshow(out_img)
+        #plt.show()
+
+        ystart = 380
+        ystop = 500
+        scale = 1.25
+        scale_windows, out_img = find_cars(image, ystart, ystop, scale, self.svc, self.X_scaler, self.orient, self.pix_per_cell, self.cell_per_block, self.spatial_size, self.hist_bins, self.color_space)
+        hot_windows += scale_windows
+        #plt.imshow(out_img)
+        #plt.show()
+
+        ystart = 390
+        ystop = 520
         scale = 1.5
         scale_windows, out_img = find_cars(image, ystart, ystop, scale, self.svc, self.X_scaler, self.orient, self.pix_per_cell, self.cell_per_block, self.spatial_size, self.hist_bins, self.color_space)
         hot_windows += scale_windows
@@ -269,30 +286,34 @@ class VehicleDetector:
         #plt.imshow(out_img)
         #plt.show()
 
-        ystart = 325
-        ystop = 656
-        scale = 1.75
+        ystart = 390
+        ystop = 600
+        scale = 2
         scale_windows, out_img = find_cars(image, ystart, ystop, scale, self.svc, self.X_scaler, self.orient, self.pix_per_cell, self.cell_per_block, self.spatial_size, self.hist_bins, self.color_space)
         hot_windows += scale_windows
 
         #plt.imshow(out_img)
         #plt.show()
 
-        ystart = 375
-        ystop = 700
-        scale = 3
+        ystart = 390
+        ystop = 650
+        scale = 2.5
         scale_windows, out_img = find_cars(image, ystart, ystop, scale, self.svc, self.X_scaler, self.orient, self.pix_per_cell, self.cell_per_block, self.spatial_size, self.hist_bins, self.color_space)
         hot_windows += scale_windows
 
         #plt.imshow(out_img)
         #plt.show()
+
+
         self.heat *= 0.8
+        #self.heat *= 0.0
         #self.heat = self.heat.clip(min=0, max=0.5)
         # Add heat to each box in box list
         self.heat = add_heat(self.heat, hot_windows)
 
         # Apply threshold to help remove false positives
-        curr_heat = apply_threshold(self.heat, 15.1)
+        curr_heat = apply_threshold(self.heat, 24.1)
+        #curr_heat = apply_threshold(self.heat, 2.1)
 
         # Visualize the heatmap when displaying
         heatmap = np.clip(curr_heat, 0, 255)
@@ -305,10 +326,14 @@ class VehicleDetector:
         return draw_img
 
 vehicle_detector = VehicleDetector()
-#image = mpimg.imread('.\\test_images\\test6.jpg')
+#image = mpimg.imread('.\\test_images\\test5.jpg')
 #draw_img = vehicle_detector.process_image(image)
 #plt.imshow(draw_img)
 #plt.show()
+#clip1 = VideoFileClip("./test_video.mp4")
+#res_video = clip1.fl_image(vehicle_detector.process_image)
+#res_video.write_videofile("./test_video_res.mp4", audio=False)
+
 clip1 = VideoFileClip("./project_video.mp4")
 res_video = clip1.fl_image(vehicle_detector.process_image)
 res_video.write_videofile("./project_video_res.mp4", audio=False)
