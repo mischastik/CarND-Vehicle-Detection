@@ -74,8 +74,6 @@ I finally came up with five different scales in different y-coordinate-intervals
 
 I used HOG sub-sampling to speed up feature computation. The hog features are computed on the whole image (in the pre-defined y-range) in lines 137-139 of function find_cars and the appropriately aggregated within the following two for-loops where the features for the individual windows are computed.
 
-![alt text][image3]
-
 ![alt text][image4]
 ---
 
