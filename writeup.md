@@ -71,7 +71,10 @@ I finally came up with five different scales in different y-coordinate-intervals
 - Scale 2.0 at y from 390 to 600
 - Scale 2.5 at y from 390 to 650
 
-#### 2. HOG Sub-sampling
+#### 2. Search region
+Besides the scale-based limitation of the y-coordinate, the x-coordinate was also limited independent of scale to exclude the opposite lane. This was done by excluding all search windows left of a defined line (e. g. with a x-value smaller than a limit that linearly depends on the y-coodinate).
+
+#### 3. HOG Sub-sampling
 
 I used HOG sub-sampling to speed up feature computation. The hog features are computed on the whole image (in the pre-defined y-range) in lines 137-139 of function find_cars and the appropriately aggregated within the following two for-loops where the features for the individual windows are computed.
 
