@@ -173,12 +173,12 @@ def draw_boxes(img, bboxes, color=(0, 0, 255), thick=6):
     return imcopy
 
 
-def add_heat(heatmap, bbox_list):
+def add_heat(heatmap, bbox_list, weight = 1):
     # Iterate through list of bboxes
     for box in bbox_list:
         # Add += 1 for all pixels inside each bbox
         # Assuming each "box" takes the form ((x1, y1), (x2, y2))
-        heatmap[box[0][1]:box[1][1], box[0][0]:box[1][0]] += 1
+        heatmap[box[0][1]:box[1][1], box[0][0]:box[1][0]] += weight
 
     # Return updated heatmap
     return heatmap  # Iterate through list of bboxes

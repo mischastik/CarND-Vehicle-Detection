@@ -138,18 +138,28 @@ def find_cars(img, ystart, ystop, scale, svc, X_scaler, orient, pix_per_cell, ce
     hog2 = get_hog_features(ch2, orient, pix_per_cell, cell_per_block, feature_vec=False)
     hog3 = get_hog_features(ch3, orient, pix_per_cell, cell_per_block, feature_vec=False)
 
-    for xb in range(nxsteps):
-        for yb in range(nysteps):
+    for yb in range(nysteps):
+        for xb in range(nxsteps):
             ypos = yb * cells_per_step
             xpos = xb * cells_per_step
+
+            xleft = xpos * pix_per_cell
+            ytop = ypos * pix_per_cell
+            # exclude pixels in other lane:
+            yposOrig = ytop * scale + ystart
+            xposOrig = xleft * scale
+            if yposOrig < 445:
+                if xposOrig < 525.0:
+                    continue
+            else:
+                yoff = (180 - (yposOrig - 445)) / 180.0
+                if xposOrig < 525 * yoff:
+                    continue
             # Extract HOG for this patch
             hog_feat1 = hog1[ypos:ypos + nblocks_per_window, xpos:xpos + nblocks_per_window].ravel()
             hog_feat2 = hog2[ypos:ypos + nblocks_per_window, xpos:xpos + nblocks_per_window].ravel()
             hog_feat3 = hog3[ypos:ypos + nblocks_per_window, xpos:xpos + nblocks_per_window].ravel()
             hog_features = np.hstack((hog_feat1, hog_feat2, hog_feat3))
-
-            xleft = xpos * pix_per_cell
-            ytop = ypos * pix_per_cell
 
             # Extract the image patch
             subimg = cv2.resize(ctrans_tosearch[ytop:ytop + window, xleft:xleft + window], (64, 64))
@@ -260,12 +270,15 @@ class VehicleDetector:
         hot_windows = []
         if self.heat is None:
             self.heat = np.zeros_like(image[:, :, 0]).astype(np.float)
+        else:
+            self.heat *= 0.8
+            # self.heat *= 0.0
 
         ystart = 360
-        ystop = 480
+        ystop = 500
         scale = 1.0
         scale_windows, out_img = find_cars(image, ystart, ystop, scale, self.svc, self.X_scaler, self.orient, self.pix_per_cell, self.cell_per_block, self.spatial_size, self.hist_bins, self.color_space)
-        hot_windows += scale_windows
+        self.heat = add_heat(self.heat, scale_windows)
         #plt.imshow(out_img)
         #plt.show()
 
@@ -273,7 +286,7 @@ class VehicleDetector:
         ystop = 500
         scale = 1.25
         scale_windows, out_img = find_cars(image, ystart, ystop, scale, self.svc, self.X_scaler, self.orient, self.pix_per_cell, self.cell_per_block, self.spatial_size, self.hist_bins, self.color_space)
-        hot_windows += scale_windows
+        self.heat = add_heat(self.heat, scale_windows, 2)
         #plt.imshow(out_img)
         #plt.show()
 
@@ -281,8 +294,7 @@ class VehicleDetector:
         ystop = 520
         scale = 1.5
         scale_windows, out_img = find_cars(image, ystart, ystop, scale, self.svc, self.X_scaler, self.orient, self.pix_per_cell, self.cell_per_block, self.spatial_size, self.hist_bins, self.color_space)
-        hot_windows += scale_windows
-
+        self.heat = add_heat(self.heat, scale_windows, 2)
         #plt.imshow(out_img)
         #plt.show()
 
@@ -290,8 +302,7 @@ class VehicleDetector:
         ystop = 600
         scale = 2
         scale_windows, out_img = find_cars(image, ystart, ystop, scale, self.svc, self.X_scaler, self.orient, self.pix_per_cell, self.cell_per_block, self.spatial_size, self.hist_bins, self.color_space)
-        hot_windows += scale_windows
-
+        self.heat = add_heat(self.heat, scale_windows)
         #plt.imshow(out_img)
         #plt.show()
 
@@ -299,17 +310,9 @@ class VehicleDetector:
         ystop = 650
         scale = 2.5
         scale_windows, out_img = find_cars(image, ystart, ystop, scale, self.svc, self.X_scaler, self.orient, self.pix_per_cell, self.cell_per_block, self.spatial_size, self.hist_bins, self.color_space)
-        hot_windows += scale_windows
-
+        self.heat = add_heat(self.heat, scale_windows)
         #plt.imshow(out_img)
         #plt.show()
-
-
-        self.heat *= 0.8
-        #self.heat *= 0.0
-        #self.heat = self.heat.clip(min=0, max=0.5)
-        # Add heat to each box in box list
-        self.heat = add_heat(self.heat, hot_windows)
 
         # Apply threshold to help remove false positives
         curr_heat = apply_threshold(self.heat, 24.1)
@@ -326,7 +329,7 @@ class VehicleDetector:
         return draw_img
 
 vehicle_detector = VehicleDetector()
-#image = mpimg.imread('.\\test_images\\test5.jpg')
+#image = mpimg.imread('.\\test_images\\testI1.jpg')
 #draw_img = vehicle_detector.process_image(image)
 #plt.imshow(draw_img)
 #plt.show()
