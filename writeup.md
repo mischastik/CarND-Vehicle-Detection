@@ -89,7 +89,9 @@ Here's a [link to my video result](./project_video_res.mp4)
 
 #### 2. False-positive filter and tracking
 
-I decided to use a heat-map approach for false-positive filtering and tracking. First of all, a heat-map is computed by aggregating the all detections from all windows. The heat-map is then thresholded and segmented to yield actual detections.
+I decided to use a heat-map approach for false-positive filtering and tracking. First of all, a heat-map is computed by aggregating the all detections from all windows. The heat contributed from a certain scale is weighted with a given value to compensate for the effect that smaller overlapping windows can contribute more heat than larger ones in some cases.
+
+The heat-map is then thresholded and segmented to yield actual detections.
 The heat-map is also used for the detection of he upcoming frames: The previous heat-map is multiplied by 0.8 (IIR-averaging) and then the new heat-map is added to it. This way, one-time outliers in a few individual frames are suppressed whereas continuous detections aggregate and increase the heat-map values around the area of true positives. This comes at the cost of a slightly delayed detection.
 
 
