@@ -34,6 +34,7 @@ The goals / steps of this project are the following:
 File 'pipeline.py' contains the class VehicleDetector. Its constructor contains the training of an SVM classifier on Histogram of Oriented Gradients (HOG), spatial and color histogram features. The file 'helper_functions.py' contains several helper methods for feature extraction, training and classification.
 The classifier's parameters are cached in the file 'svc_pickle.p'. If any hyperparameters for the classifier or the training data is changed, this file needs to be deleted to trigger a re-training of the classifier.
 The method process_image applies the classifier to an input image. It also performs tracking, so when it should be applied to a new sequence, a new instance of VehicleDetector should be created.
+There is also a required folder for training data. It should be called 'training' and filled with the training samples (sub-folder 'vehicles' for vehicle images and sub-folder 'non-vehicles' for images that don't contain vehicles). Samples can for instance be downloaded from here: https://s3.amazonaws.com/udacity-sdc/Vehicle_Tracking/vehicles.zip and https://s3.amazonaws.com/udacity-sdc/Vehicle_Tracking/non-vehicles.zip
 
 ### Histogram of Oriented Gradients (HOG)
 
